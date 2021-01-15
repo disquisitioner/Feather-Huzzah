@@ -3,8 +3,6 @@
  * either an HTU21D (now retired) or Si7021, both from sparkfun.com and supported using a 
  * common sensor library
  * 
- * Author: David Bryant (david@disquisitioner.com)
- * 
  * Reports observations over Wifi via the Feather Huzzah and dweet.io.  Because the data gets 
  * reported to the web there's no display, though useful information is output via the serial
  * monitor to streamline development.
@@ -21,6 +19,8 @@
  * board to be sure. If not you'll need pull-ups resistors on SCA and SDL (4.7K works well).
  * Alternatively, if you are using multiple I2C devices you may need to disable the onboard
  * pullups and use one set for all devices on the bus.  Read device documentation to be sure.
+ *
+
  *   
  *   Note that the HTU21D has been retired and is no longer available.  The Si7021 has replaced it.
  */
@@ -30,17 +30,7 @@
 #include <Wire.h>  
 #include <ESP8266WiFi.h>
 #include "SparkFun_Si7021_Breakout_Library.h"
-
-// WiFi configuration settingswifi
-const char* ssid     = "YOUR_SSID_GOES_HERE";
-const char* password = "YOUR_WIFI_PASSWORD_GOES_HERE";
-
-
-// Device configuration info for dweet.io & ThingSpeak
-const char* dweetName = "DWEET_THING_NAME";
-const int channelID   = 1234567;  // YOUR THINGSPEAK CHANNEL ID GOES HERE
-String writeAPIKey    = "CHANNELWRITEAPIKEY"; // write API key for ThingSpeak Channel
-
+#include "./secrets.h"        // Keep passwords, account keys, etc. private & separate
 
 // Use WiFiClient class to create TCP connections and talk to hosts
 WiFiClient client;
@@ -196,7 +186,7 @@ void post_dweet(float tempF, float humidity, float mint, float maxt, float minh,
   client.print(dweetName);
   client.println(" HTTP/1.1");
   client.println("Host: dweet.io");
-  client.println("User-Agent: ESP8266 (orangemoose)/1.0");  // Customize if you like
+  client.println("User-Agent: ESP8266 (orangemoose)/1.0");
   client.println("Cache-Control: no-cache");
   client.println("Content-Type: application/json");
   client.print("Content-Length: ");
@@ -248,7 +238,7 @@ void post_thingspeak(float tempF, float humidity, float mint, float maxt, float 
 
     client.println("POST /update HTTP/1.1");
     client.println("Host: api.thingspeak.com");
-    client.println("User-Agent: ESP8266 (orangemoose)/1.0");  // Customize if you like
+    client.println("User-Agent: ESP8266 (orangemoose)/1.0");
     client.println("Connection: close");
     client.println("X-THINGSPEAKAPIKEY: " + writeAPIKey);
     client.println("Content-Type: application/x-www-form-urlencoded");

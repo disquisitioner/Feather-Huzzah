@@ -1,14 +1,12 @@
 /*
  * Air Quality Monitor built using an Adafruit Feather Huzzah with a Plantower PM2.5 sensor 
- * (also from Adafruit).   PM2.5 sensor reports data approximately every second using a serial
- * interface, which is read here using the software serial library.  
- * 
- * Author: David Bryant (david@disquisitioner.com)
+ * (also from Adafruit). 
  * 
  * Reports observations over Wifi via the Feather Huzzah and dweet.io.  Because the data gets 
  * reported to the web there's no display, though useful information is output via the serial
  * monitor to streamline development.
  *
+ * Additional connections.  Note that newer versions of the Sparkfun Si7021 and HTU21D breakout
  */
 
 #include <Arduino.h>
@@ -16,22 +14,11 @@
 #include <Wire.h>  
 #include <ESP8266WiFi.h>
 #include "Adafruit_PM25AQI.h"
+#include "./secrets.h"        // Keep passwords, account keys, etc. private & separate
 
 // PM2.5 reports data over a Serial interface
 #include <SoftwareSerial.h>
-SoftwareSerial pmSerial(12,13);   // PM2.5 TX connected to digital pin 12, PM2.5 RX ignored
-
-// WiFi configuration settings
-const char* ssid     = "YOUR_SSID_GOES_HERE";
-const char* password = "YOUR_WIFI_PASSWORD_GOES_HERE";
-
-
-// Device configuration info for dweet.io & ThingSpeak
-/* Info for home cellar monitor */
-const char* dweetName = "DWEET_THING_NAME";
-const int channelID   = 1234567;  // YOUR THINGSPEAK CHANNEL ID GOES HERE
-String writeAPIKey    = "CHANNELWRITEAPIKEY"; // write API key for ThingSpeak Channel
-
+SoftwareSerial pmSerial(12,13);
 
 // Use WiFiClient class to create TCP connections and talk to hosts
 WiFiClient client;
@@ -185,7 +172,7 @@ void post_dweet(float pm25, float minaqi, float maxaqi, float aqi)
   client.print(dweetName);
   client.println(" HTTP/1.1");
   client.println("Host: dweet.io");
-  client.println("User-Agent: ESP8266 (orangemoose)/1.0");  // Customize if you like
+  client.println("User-Agent: ESP8266 (orangemoose)/1.0");
   client.println("Cache-Control: no-cache");
   client.println("Content-Type: application/json");
   client.print("Content-Length: ");
@@ -231,7 +218,7 @@ void post_thingspeak(float pm25, float minaqi, float maxaqi, float aqi) {
 
     client.println("POST /update HTTP/1.1");
     client.println("Host: api.thingspeak.com");
-    client.println("User-Agent: ESP8266 (orangemoose)/1.0");  // Customize if you like
+    client.println("User-Agent: ESP8266 (orangemoose)/1.0");
     client.println("Connection: close");
     client.println("X-THINGSPEAKAPIKEY: " + writeAPIKey);
     client.println("Content-Type: application/x-www-form-urlencoded");
